@@ -1,0 +1,77 @@
+#if(${package})package ${package};#end
+
+/**
+ * IteratorList<T>
+ * List based on Iterator
+ *
+ */
+public abstract class IteratorList<T>
+	extends AbstractList<T>
+	{
+	/
+	private Integer _size=null;
+	@Override
+	public T get(int i)
+		{
+		CloseableIterator<T> iter=null;
+		try
+			{
+			int index=0;
+			iter=iterator();
+			while(iter.hasNext())
+				{
+				T o=iter.next();
+				if(index==i) return o;
+				index++;
+				}
+			}
+		finally
+			{
+			if(iter!=null) iter.close();
+			}
+		throw new NoSuchElementException();
+		}
+	@Override
+	public boolean isEmpty()
+		{
+		CloseableIterator<T> iter=null;
+		try
+			{
+			iter=iterator();
+			return !iter.hasNext();
+			}
+		finally
+			{
+			if(iter!=null) iter.close();
+			}
+		}
+	
+	@Override
+	public int size()
+		{
+		if(_size==null)
+			{
+			int N=0;
+			CloseableIterator<T> iter=null;
+			try
+				{
+				iter=iterator();
+				while(iter.hasNext())
+					{
+					iter.next();
+					N++;
+					}
+				_size=N;
+				}
+			finally
+				{
+				if(iter!=null) iter.close();
+				}
+			}
+		return _size;
+		}
+	
+	@Override
+	public abstract CloseableIterator<T> iterator();
+	}
+

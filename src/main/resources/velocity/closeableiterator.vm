@@ -1,0 +1,11 @@
+#if(${package})package ${package};#end
+
+/**
+ * Iterator that needs to be closed to release the resources.
+ */
+public interface CloseableIterator<T>
+	extends java.util.Iterator<T>
+	{
+	/** closes the resources associated with that iterator */
+	public void close();
+	}
