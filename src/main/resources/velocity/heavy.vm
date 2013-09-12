@@ -1,0 +1,339 @@
+#macro(javaName $a $b)${a.substring(0,1).toUpperCase()}${a.substring(1)}#end
+#macro(packagePath $p)${a.replace('.','/')}#end
+#macro(LOGDECL)private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger("${model.name}");#end
+#macro(getter $f)get#javaName(${f.name})#end
+#macro(setter $f)set#javaName(${f.name})#end
+#macro(fieldType3 $f)#if(${f.range.dataRange})#if(${f.representedAsPrimitive})${f.range.primitive.primitiveType}#{else}${f.range.primitive.javaClass.name}#end#{else}java.lang.Object#end#end
+#macro(fieldType2 $f)#if(${f.range.dataRange})${f.range.primitive.javaClass.name}#{else}java.lang.Object#end#end
+#macro(fieldType1 $f)#if(${f.needsList})java.util.List<#fieldType2($f)>#{else}#fieldType3($f)#end#end
+${out.open("README.md")}Hello World
+${out.close()}
+
+
+${out.open("${model.name}/build.xml")}<?xml version="1.0" encoding="UTF-8"?>
+<project default="all" >
+<target name="all" depends="build">
+</target>
+
+<target name="build">
+	<mkdir dir="dist"/>
+	<mkdir dir="tmp"/>
+		
+	<javac destdir="tmp" debug="true" includeantruntime="false">
+		<src path="src/main/java"/>
+		<include name="**/*.java" />
+	</javac>
+		
+	<jar destfile="dist/mjeter.jar" basedir="tmp">
+		
+		<manifest>
+			<attribute name="Built-By" value="${user.name}"/>
+			<attribute name="Main-Class" value="todo.TODO"/>
+		</manifest>
+	</jar>
+	<delete dir="tmp"/>
+</target>
+
+</project>
+${out.close()}
+
+#foreach($p in ${model.packages})
+
+
+#foreach($c in ${p.enumerations})
+#set($ClassName = "#javaName(${c.name})")
+
+
+${out.open("${model.name}/src/main/java/${c.package.path}/${ClassName}.java")}
+package ${c.package.name};
+/**
+ * enumeration for ${ClassName}
+ *
+ */
+public enum ${ClassName}
+	{
+	#foreach($i in ${c.items})#if($velocityCount > 1),#end $i #end
+	;
+	/** find a ${ClassName} by name */
+	public static ${ClassName} findByName(String s)
+		{
+		for(${ClassName} E:values())
+			{
+			if(E.name().equals(s)) return E;
+			}
+		return null;
+		}
+	
+	}
+${out.close()}
+
+${out.open("${model.name}/src/main/java/${c.package.path}/swing/${ClassName}ListModel.java")}
+package ${c.package.name}.swing;
+import ${c.package.name}.${ClassName};
+
+/**
+ * ListModel for ${ClassName}
+ *
+ */
+public class ${ClassName}ListModel
+	extends javax.swing.AbstractListModel
+	{
+	/** LOG declaration */
+	#LOGDECL()
+	
+	
+	public ${ClassName}ListModel()
+		{
+		}
+	
+	@Override
+	public final Object 	getElementAt(int index)
+		{
+		return this.get${ClassName}At(index);
+		}
+		
+	public 	${ClassName} get${ClassName}At(int index)
+		{
+		return ${c.name}.values()[index];
+		}
+		
+	@Override
+	public  int getSize()
+		{
+		return ${c.name}.values().length;
+		} 
+	}
+${out.close()}
+#end
+
+#foreach($c in ${p.classes})
+#set($ClassName = "#javaName(${c.name})")
+
+${out.open("${model.name}/src/main/java/${c.package.path}/${ClassName}.java")}
+package ${c.package.name};
+
+
+
+public  interface ${ClassName}
+	extends ${model.name}Component
+	{
+	#foreach($f in ${c.predicates})
+	
+	/** setter for field ${f.name}*/
+	public void #setter(${f})(#fieldType1(${f})  ${f.name});
+	
+	/** getter for field ${f.name}*/
+	public #fieldType1(${f}) #getter(${f})();
+	#end
+	}
+
+${out.close()}
+
+${out.open("${model.name}/src/main/java/${c.package.path}/impl/${ClassName}Impl.java")}
+
+package ${c.package.name}.impl;
+import ${c.package.name}.${ClassName};
+
+
+/**
+ * implementation of ${c.name}
+ *
+ */
+public  class ${ClassName}Impl
+	extends Abstract${model.name}Component
+	implements ${ClassName}
+	{
+	/** LOG declaration */
+	#LOGDECL()
+	
+	public ${ClassName}Impl()
+		{
+		}
+	
+	#foreach($f in ${c.predicates})
+	
+	/** declaration of field ${f.name} */
+	private #fieldType1(${f}) ${f.name} #if(${f.range.dataRange})#if(${f.representedAsPrimitive})/** TODO SET INIT */#{else}=null#{end}#{else}=null#end;
+	
+	/** setter for field ${f.name}*/
+	@Override
+	public void #setter(${f})(#fieldType1(${f})  ${f.name})
+		{
+		this.${f.name}=${f.name};
+		}
+	
+	/** getter for field ${f.name}*/
+	@Override
+	public #fieldType1(${f}) #getter(${f})()
+		{
+		#if(${f.needsList})if(this.${f.name}==null)
+			{
+			this.${f.name} = new java.util.ArrayList<#fieldType2(${f})>();
+			}
+		#end
+		
+		return this.${f.name};
+		}
+	#end
+	
+	
+	
+	@Override
+	public String toString()
+		{
+		StringBuilder b=new StringBuilder(getClass().getName()+"[");
+		#foreach($f in ${c.predicates})
+		#if(! ${f.needsList})
+		
+		b.append(" ${f.name}:").append(String.valueOf(this.${f.name}));
+		
+		#end
+		#end
+		
+		b.append("]");
+		return b.toString();
+		}
+	}
+${out.close()}
+
+
+${out.open("${model.name}/src/main/java/${c.package.path}/swing/${ClassName}TableModel.java")}
+package ${c.package.name}.swing;
+import ${c.package.name}.${ClassName};
+
+@SuppressWarnings("serial")
+public abstract class ${ClassName}TableModel
+	extends com.github.lindenb.swing.AbstractGenericTableModel<${ClassName}>
+	{
+	/** LOG declaration */
+	#LOGDECL()
+	
+	@Override
+	public int getColumnCount()
+		{
+		return 0;
+		}
+	}
+
+${out.close()}
+
+#end
+
+#end
+
+${out.open("${model.name}/src/main/java/com/github/lindenb/swing/AbstractGenericTableModel.java")}
+package  com.github.lindenb.swing;
+
+import java.util.List;
+import java.util.Vector;
+import javax.swing.table.AbstractTableModel;
+
+@SuppressWarnings("serial")
+public abstract class AbstractGenericTableModel<T>
+	 extends AbstractTableModel
+	{
+	/** LOG declaration */
+	#LOGDECL()
+	
+	private List<T> rows=new Vector<T>();
+	
+	public AbstractGenericTableModel()
+		{
+		}
+	
+	public AbstractGenericTableModel(List<T> rows)
+		{
+		this.rows=new Vector<T>(rows);
+		}
+	
+	@Override
+	public abstract Class<?> getColumnClass(int col);
+	
+	@Override
+	public abstract String getColumnName(int col);
+	
+	public List<T> getRows()
+		{
+		return rows;
+		}
+	
+	public void setRows(List<T> rows)
+		{
+		this.rows = new Vector<T>(rows);
+		fireTableDataChanged();
+		}
+	
+	public void setElementAt(int row,T o)
+		{
+		this.rows.set(row, o);
+		this.fireTableRowsUpdated(row, row);
+		}
+	
+	public T getElementAt(int i)
+		{
+		return this.getRows().get(i);
+		}
+	
+	public abstract Object getValueOf(final T o, int col);
+	
+	@Override
+	public final Object getValueAt(int row, int col)
+		{
+		T rsrc=getElementAt(row);
+		return rsrc==null?null:getValueOf(rsrc,col);
+		}
+	
+	public void addElement(T o)
+		{
+		int n=getRowCount();
+		this.rows.add(o);
+		fireTableRowsInserted(n, n);
+		}		
+	
+	@Override
+	public int getRowCount()
+		{
+		return rows.size();
+		}
+	@Override
+	public boolean isCellEditable(int arg0, int arg1)
+		{
+		return false;
+		}
+	public void clear()
+		{
+		this.rows.clear();
+		fireTableDataChanged();
+		}
+	}
+
+
+${out.close()}
+
+
+public interface #javaName(${model.name})Component
+	{
+	public #javaName(${model.name}) get#javaName(${model.name})();
+	}
+
+
+public abstract class Abstract#javaName(${model.name})Component
+	implements #javaName(${model.name})Component
+	{
+	private transient #javaName(${model.name}) _owner=null;
+	protected Abstract#javaName(${model.name})Component()
+		{
+		}
+	
+	public #javaName(${model.name}) get#javaName(${model.name})()
+		{
+		return this._owner;
+		}
+	
+	public void set#javaName(${model.name})(#javaName(${model.name}) owner)
+		{
+		this._owner=owner;
+		}	
+	}
+
+

@@ -1,22 +1,73 @@
 #if(${package})package ${package};#end
+import java.sql.Statement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class SQLIterator<T>
 	implements CloseableIterator<T>
 	{
-	public SQLIterator()
+	private Connection con;
+	private Statement stmt;
+	private ResultSet row;
+	private SQLObjectFactory<T> factory;
+	boolean _hasNextCalled=false;
+	boolean _hasNext=false;
+	
+	public SQLIterator(
+		Connection con,
+		Statement stmt,
+		ResultSet row,
+		SQLObjectFactory<T> factory
+		)
 		{
-		
+		this.con=con;
+		this.stmt=sttmt;
+		this.row=row;
+		this.factory=factory;
+		}
+	
+	protected  SQLObjectFactory<T> getFactory()
+		{
+		return this.factory;
 		}
 	
 	@Override
 	public boolean hasNext()
 		{
-		return false;
+		if(this.row==null) return false;
+		if(_hasNextCalled) return _hasNext;
+		_hasNextCalled=true;
+		_hasNext=false;
+		try
+			{
+			_hasNext=this.row.next();
+			}
+		catch(SQLException err)
+			{
+			close();
+			throw new RuntimeException(err);
+			}
+		return _hasNext;
 		}
 	@Override
 	public T next()
 		{
-		return null;
+		if(!_hasNextCalled) hasNext();
+		if(!_hasNext) throw new NoSuchElementException();
+		T o;
+		try
+			{
+			o=getFactory().creatObject(0,this.row);
+			}
+		catch(SQLException err)
+			{
+			close();
+			throw new RuntimeException(err);
+			}
+		_hasNextCalled=false;
+		_hasNext=false;
+		return o;
 		}
 	@Override
 	public void remove() {
@@ -25,7 +76,14 @@ public class SQLIterator<T>
 		
 	public void close()
 		{
-		
+		if(this.row!=null) try{ this.row.close();} catch(SQLException err){}
+		this.row=null;
+		if(this.stmt!=null) try{ this.stmt.close();} catch(SQLException err){}
+		this.stmt=null;
+		if(this.con!=null) try{ this.con.close();} catch(SQLException err){}
+		this.con=null;
+		_hasNextCalled=true;
+		_hasNext=false;
 		}
 	}
 

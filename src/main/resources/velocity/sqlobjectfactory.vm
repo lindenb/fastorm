@@ -1,0 +1,7 @@
+#if(${package})package ${package};#end
+
+public interface SQLObjectFactory<T>
+	{
+	public T creatObject(int fromIndex,java.sql.ResultSet row) throws java.sql.SQLException;
+	}
+
