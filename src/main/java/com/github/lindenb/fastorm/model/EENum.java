@@ -20,7 +20,12 @@ public class EENum extends EDataType
 			}
 		return null;
 		}
-
+	
+	@Override
+	public boolean isEPrimitive()
+		{
+		return false;
+		}
 	
 	@Override
 	public final boolean isEClass() {

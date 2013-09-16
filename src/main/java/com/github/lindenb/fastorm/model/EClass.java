@@ -24,6 +24,8 @@ public class EClass extends EClassifier
 		}
 	
 	
+	
+	
 	@Override
 	public final boolean isEClass() {
 		return true;
