@@ -1,9 +1,27 @@
 package com.github.lindenb.fastorm.model;
 
-public class EReference extends EStructuralFeature {
+import org.w3c.dom.Attr;
+import org.w3c.dom.Element;
+
+public class EReference extends EStructuralFeature
+	{
+	private String referenceType=null;
+	private EClass _range=null;
+	
 	public EClass getEReferenceType()
 		{
-		return null;
+		if(_range==null)
+			{
+			if(referenceType.contains("."))//qualified Name
+				{
+				_range=getEModel().getEClassByQName(referenceType);
+				}
+			else
+				{
+				_range= getEPackage().getEClassByName(referenceType);
+				}
+			}
+		return _range;
 		}
 	
 	public EReference getEOpposite()
@@ -22,4 +40,14 @@ public class EReference extends EStructuralFeature {
 		{
 		return true;
 		}
+	
+	
+	@Override
+	void load(Element root) throws EModelException
+		{
+		super.load(root);
+		
+		if(referenceType==null) throw new EModelException("missing reference type");
+		}
+	
 }

@@ -2,6 +2,7 @@ package com.github.lindenb.fastorm.model;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.w3c.dom.Attr;
@@ -61,6 +62,23 @@ public class EModel
 	public void setOutputDirectory(File outputDirectory)
 		{
 		this.outputDirectory = outputDirectory;
+		}
+	
+	
+	public  List<EPrimitiveDataType> getAllEPrimitives()
+		{
+		return Arrays.asList(EPrimitiveDataType.getAllEPrimitives());
+		}
+	
+	public EPrimitiveDataType getEPrimitiveByName(String name)
+		{
+		for(EPrimitiveDataType p:getAllEPrimitives())
+			{
+			if(name.equalsIgnoreCase(p.getQName())) return p;
+			if(name.equalsIgnoreCase(p.getPrimitive())) return p;
+			if(name.equalsIgnoreCase(p.getJavaClass().getSimpleName())) return p;
+			}
+		return null;
 		}
 	
 	private void load(Element root) throws EModelException

@@ -2,9 +2,7 @@ package com.github.lindenb.fastorm.model;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
@@ -12,9 +10,14 @@ import org.w3c.dom.Node;
 
 public class EPackage extends ENamedElement
 	{
-	private Map<String,EClassifier> name2classifier=new LinkedHashMap<String, EClassifier>();
+	private List<EClassifier> classifiers=new ArrayList<EClassifier>();
 	private EModel eModel;
 	
+	
+	public final String getQName()
+		{
+		return this.getName();
+		}
 	
 	public EClassifier getEClassifierByQName(String qName)
 		{
@@ -46,12 +49,16 @@ public class EPackage extends ENamedElement
 	
 	public List<EClassifier> getEClassifiers()
 		{
-		return new ArrayList<EClassifier>(this.name2classifier.values());
+		return this.classifiers;
 		}
 	
 	public EClassifier getEClassifierByName(String name)
 		{
-		return this.name2classifier.get(name);
+		for(EClassifier ec:getEClassifiers())
+			{
+			if(ec.getName().equals(name)) return ec;
+			}
+		return null;
 		}
 	
 	public List<EClass> getEClasses()
@@ -105,13 +112,15 @@ public class EPackage extends ENamedElement
 				{
 				EClass p=new EClass();
 				p.setEPackage(this);
-				
+				p.load(e1);
+				this.classifiers.add(p);
 				}
 			else if(e1.getNodeName().equals("enum"))
 				{
 				EEnum p=new EEnum();
 				p.setEPackage(this);
-				
+				p.load(e1);
+				this.classifiers.add(p);
 				}
 			}
 		}
