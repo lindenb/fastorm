@@ -2,13 +2,13 @@ package com.github.lindenb.fastorm.model;
 
 public class EEnumLiteral extends ENamedElement
 	{
-	private EENum eEnum;
+	private EEnum eEnum;
 	
-	public EENum getEEnum()
+	public EEnum getEEnum()
 		{
 		return eEnum;
 		}
-	public void setEEnum(EENum eEnum)
+	public void setEEnum(EEnum eEnum)
 		{
 		this.eEnum = eEnum;
 		}

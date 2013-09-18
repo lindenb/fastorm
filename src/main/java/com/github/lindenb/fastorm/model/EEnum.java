@@ -3,7 +3,7 @@ package com.github.lindenb.fastorm.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EENum extends EDataType
+public class EEnum extends EDataType
 	{
 	private List<EEnumLiteral> items=new ArrayList<EEnumLiteral>();
 	
