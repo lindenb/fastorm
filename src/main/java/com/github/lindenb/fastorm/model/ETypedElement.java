@@ -50,6 +50,6 @@ public abstract EClassifier getEType();
 
 void load(Element root) throws EModelException
 	{
-	
+	super.load(root);
 	}	
 }

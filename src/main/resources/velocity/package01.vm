@@ -1,0 +1,11 @@
+${out.open("${pack.outputDirectory}/package-info.java")}
+#parse("package-info.vm")
+${out.close()}
+
+#foreach($enumeration in ${pack.enumerations})
+#parse("enum01.vm")
+#end
+
+#foreach($struct in ${pack.eClasses})
+#parse("classes01.vm")
+#end

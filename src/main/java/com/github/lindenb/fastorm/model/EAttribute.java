@@ -73,6 +73,11 @@ public class EAttribute
 				if(this.eAttributeType==null) throw new EModelException("Cannot get @type="+value);
 				}
 			}
+		att=root.getAttributeNode("id");
+		if(att!=null && att.getValue().equals("true"))
+			{
+			this.setId(true);
+			}
 		
 		}
 

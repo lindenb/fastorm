@@ -1,134 +1,65 @@
 #parse("common.vm")
+
 ${out.open("${model.name}/README.md")}
 Hello World
 ${out.close()}
 
 #parse("ant01.vm")
 
-#foreach($pack in ${model.packages})
-
-${out.open("${pack.outputDirectory}/package-info.java")}
-#parse("package-info.vm")
-${out.close()}
-
-#foreach($enumeration in ${pack.enumerations})
-#parse("enum01.vm")
+#foreach($pack in ${model.ePackages})
+#parse("package01.vm")
 #end
 
-#foreach($c in ${pack.eClasses})
-#set($ClassName = "#javaName(${c.name})")
 
-${out.open("${model.name}/src/main/java/${c.package.path}/${ClassName}.java")}
-package ${c.package.name};
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/${model.javaName}EntityType.java")}
+#JAVA_TOP()
+package ${model.package};
 
-
-
-public  interface ${ClassName}
-	extends ${model.name}Component
+#GENERATED()
+public enum ${model.javaName}EntityType
 	{
-	#foreach($f in ${c.predicates})
-	
-	/** setter for field ${f.name}*/
-	public void #setter(${f})(#fieldType1(${f})  ${f.name});
-	
-	/** getter for field ${f.name}*/
-	public #fieldType1(${f}) #getter(${f})();
+	#foreach($struct in  ${model.allEClasses})#if($velocityCount > 1),#end
+	${struct.qName.replace(".","_")}
 	#end
 	}
 
+#JAVA_BOTTOM()
 ${out.close()}
 
-${out.open("${model.name}/src/main/java/${c.package.path}/impl/${ClassName}Impl.java")}
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/${model.javaName}.java")}
+#JAVA_TOP()
+package ${model.package};
 
-package ${c.package.name}.impl;
-import ${c.package.name}.${ClassName};
-
-
-/**
- * implementation of ${c.name}
- *
- */
-public  class ${ClassName}Impl
-	extends Abstract${model.name}Component
-	implements ${ClassName}
+#GENERATED()
+public interface ${model.javaName}
 	{
-	/** LOG declaration */
-	#LOGDECL()
 	
-	public ${ClassName}Impl()
-		{
-		}
-	
-	#foreach($f in ${c.predicates})
-	
-	/** declaration of field ${f.name} */
-	private #fieldType1(${f}) ${f.name} #if(${f.range.dataRange})#if(${f.representedAsPrimitive})/** TODO SET INIT */#{else}=null#{end}#{else}=null#end;
-	
-	/** setter for field ${f.name}*/
-	@Override
-	public void #setter(${f})(#fieldType1(${f})  ${f.name})
-		{
-		this.${f.name}=${f.name};
-		}
-	
-	/** getter for field ${f.name}*/
-	@Override
-	public #fieldType1(${f}) #getter(${f})()
-		{
-		#if(${f.needsList})if(this.${f.name}==null)
-			{
-			this.${f.name} = new java.util.ArrayList<#fieldType2(${f})>();
-			}
-		#end
-		
-		return this.${f.name};
-		}
-	#end
-	
-	
-	
-	@Override
-	public String toString()
-		{
-		StringBuilder b=new StringBuilder(getClass().getName()+"[");
-		#foreach($f in ${c.predicates})
-		#if(! ${f.needsList})
-		
-		b.append(" ${f.name}:").append(String.valueOf(this.${f.name}));
-		
-		#end
-		#end
-		
-		b.append("]");
-		return b.toString();
-		}
 	}
+
+#JAVA_BOTTOM()
 ${out.close()}
 
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/Default${model.javaName}.java")}
+#JAVA_TOP()
+package ${model.package};
 
-${out.open("${model.name}/src/main/java/${c.package.path}/swing/${ClassName}TableModel.java")}
-package ${c.package.name}.swing;
-import ${c.package.name}.${ClassName};
-
-@SuppressWarnings("serial")
-public abstract class ${ClassName}TableModel
-	extends com.github.lindenb.swing.AbstractGenericTableModel<${ClassName}>
+#GENERATED()
+public class Default${model.javaName}
+	implements ${model.javaName}
 	{
-	/** LOG declaration */
-	#LOGDECL()
-	
-	@Override
-	public int getColumnCount()
+	public Default${model.javaName}()
 		{
-		return 0;
+		}
+	@Override
+	public String toString()	
+		{
+		return "${model.name}";
 		}
 	}
 
+#JAVA_BOTTOM()
 ${out.close()}
 
-#end
-
-#end
 
 ${out.open("${model.name}/src/main/java/com/github/lindenb/swing/AbstractGenericTableModel.java")}
 package  com.github.lindenb.swing;
@@ -220,42 +151,65 @@ public abstract class AbstractGenericTableModel<T>
 ${out.close()}
 
 
-public interface #javaName(${model.name})Component
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/${model.javaName}Component.java")}
+#JAVA_TOP()
+package ${model.package};
+
+#GENERATED()
+public interface ${model.javaName}Component
 	{
-	public #javaName(${model.name}) get#javaName(${model.name})();
+	/** returns the associated ${model.javaName} */
+	public ${model.javaName} get${model.javaName}();
+	
+	/** returns the type of entity */
+	public ${model.package}.${model.javaName}EntityType get${model.javaName}EntityType();
 	}
 
+#JAVA_BOTTOM()
+${out.close()}
 
-public abstract class Abstract#javaName(${model.name})Component
-	implements #javaName(${model.name})Component
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/Abstract${model.javaName}Component.java")}
+#JAVA_TOP()
+package ${model.package};
+
+public abstract class Abstract${model.javaName}Component
+	implements ${model.javaName}Component
 	{
-	private transient #javaName(${model.name}) _owner=null;
-	protected Abstract#javaName(${model.name})Component()
+	private transient ${model.javaName} _owner=null;
+	protected Abstract${model.javaName}Component()
 		{
 		}
 	
-	public #javaName(${model.name}) get#javaName(${model.name})()
+	@Override
+	public ${model.javaName} get${model.javaName}()
 		{
 		return this._owner;
 		}
 	
-	public void set#javaName(${model.name})(#javaName(${model.name}) owner)
+	public void set${model.javaName}(${model.javaName} owner)
 		{
 		this._owner=owner;
-		}	
+		}
+	@Override
+	public abstract ${model.package}.${model.javaName}EntityType get${model.javaName}EntityType();
 	}
-
-${out.open("${model.name}/src/main/java/com/github/lindenb/${model.name.toLowerCase()}/${model.javaName}Component.java")}
-package 
-
-public interface ${model.javaName}Component
-	{
-	/** return the associated ${model.javaName} */
-	public ${model.javaName} get${model.javaName}();
-	}
+#JAVA_BOTTOM()
 ${out.close()}
 
-${out.open("${model.name}/src/main/java/com/github/lindenb/${model.name.toLowerCase()}/ui/tree/${model.javaName}TreeNode.java")}
+
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/ui/provider/LabelProvider.java")}
+#JAVA_TOP()
+package ${model.package}.ui.provider;
+
+public interface LabelProvider<T>
+	{
+	public javax.swing.Icon getIcon(final T object,int size);
+	public String getLabel(java.lang.Object object);
+	}
+#JAVA_BOTTOM()
+${out.close()}
+
+
 package com.github.lindenb.${model.name.toLowerCase()}.ui.tree
 
 public class ${model.javaName}TreeNode
@@ -318,71 +272,5 @@ public class ${model.javaName}TreeNode
 		return "${model.name}";
 		}
 	}
-${out.close()}
 
-
-${out.open("${model.name}/src/main/java/com/github/lindenb/${model.name.toLowerCase()}/ui/${model.javaName}Frame.java")}
-package com.github.lindenb.${model.name.toLowerCase()}.ui.tree
-
-public class ${model.javaName}TreeNode
-	implements javax.swing.tree.TreeNode
-	{
-	private ${model.javaName} model;
-	private java.util.List<javax.swing.tree.TreeNode> children=
-		new java.util.Vector<javax.swing.tree.TreeNode>();
-	
-	public  ${model.javaName}TreeNode( ${model.javaName} model)
-		{
-		this.model=model;
-		#foreach($c in ${pack.eClasses})
-		children.add(null);
-		#end
-		}
-		
-	protected List<javax.swing.tree.TreeNode> getChildren()
-		{
-		retunr this.children;
-		}
-	
-	public  ${model.javaName}  get${model.javaName}()
-		{
-		return this.model;
-		}
-	
-	@Override
-	public int 	getChildCount()
-		{
-		return getChildren().size();
-		}
-	
-	@Override
-	public int getIndex(TreeNode node)
-		{
-		return getChildren().indexOf(node);
-		}
-		
-	@Override
-	public TreeNode getChildAt(int childIndex)
-		{
-		return getChildren().elementAt(childIndex);
-		}
-			
-	@Override
-	public final boolean isLeaf()
-		{
-		return false;
-		}
-	
-	public final TreeNode getParent()
-		{
-		return null;
-		}
-	
-	@Override
-	public String toString()
-		{
-		return "${model.name}";
-		}
-	}
-${out.close()}
 

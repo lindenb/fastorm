@@ -20,7 +20,7 @@ public abstract class EClassifier extends ENamedElement
 	
 	public String getQName()
 		{
-		return getEPackage().getName()+"."+getName();
+		return getEPackage().getName()+"."+getJavaName();
 		}
 	
 	public File getFile()

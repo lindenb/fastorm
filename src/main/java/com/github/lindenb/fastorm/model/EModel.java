@@ -32,9 +32,19 @@ public class EModel
 		return mainEclass;
 		}
 	
+	public List<EClass> getAllEClasses()
+		{
+		List<EClass> L=new ArrayList<EClass>();
+		for(EPackage p:getEPackages())
+			{
+			L.addAll(p.getEClasses());
+			}
+		return L;
+		}
+	
 	public EPackage getEPackageByName(String qName)
 		{
-		for(EPackage p:getPackages())
+		for(EPackage p:getEPackages())
 			{
 			if(p.getName().equals(qName)) return p;
 			}
@@ -48,7 +58,7 @@ public class EModel
 	
 	public EClassifier getEClassifierByQName(String qName)
 		{
-		for(EPackage p:getPackages())
+		for(EPackage p:getEPackages())
 			{
 			EClassifier ec=p.getEClassifierByQName(qName);
 			if(ec!=null) return ec;
@@ -69,7 +79,7 @@ public class EModel
 		}
 
 	
-	public List<EPackage> getPackages()
+	public List<EPackage> getEPackages()
 		{
 		return packages;
 		}
@@ -135,8 +145,9 @@ public class EModel
 		}
 	}
 	
-	private void load(Element root) throws EModelException
+	void load(Element root) throws EModelException
 		{
+		super.load(root);
 		Attr att=root.getAttributeNode("name");
 		if(att==null) throw new EModelException("@name missing in model");
 		String s=att.getValue();
@@ -180,7 +191,10 @@ public class EModel
 		private void _open(String fName,boolean ignoreIfExists)throws IOException
 			{
 			close();
-			
+			if(fName.contains("{") || fName.contains("$"))
+				{
+				throw new IOException("Bad filename:"+fName);
+				}
 			this.filename=new File(EModel.this.getOutputDirectory(),fName);
 			if(ignoreIfExists && this.filename.exists())
 					{

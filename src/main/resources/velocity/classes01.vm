@@ -1,0 +1,202 @@
+#set($ClassName = "#javaName(${struct.name})")
+
+${out.open("${model.name}/src/main/java/${struct.ePackage.qName.replace('.','/')}/${struct.javaName}.java")}
+package ${struct.ePackage.qName};
+
+
+#GENERATED()
+public  interface ${ClassName}
+	extends ${struct.eModel.package}.${struct.eModel.javaName}Component
+	{
+	#foreach($f in ${struct.predicates})
+	
+	/** setter for field ${f.name}*/
+	public void #setter(${f})(#fieldType1(${f})  ${f.name});
+	
+	/** getter for field ${f.name}*/
+	public #fieldType1(${f}) #getter(${f})();
+	#end
+	}
+
+${out.close()}
+
+${out.open("${model.name}/src/main/java/${struct.ePackage.qName.replace('.','/')}/impl/${struct.javaName}Impl.java")}
+
+package ${struct.ePackage.qName}.impl;
+import ${struct.qName};
+
+
+/**
+ * implementation of ${struct.javaName}
+ *
+ */
+#GENERATED()
+public  class ${struct.javaName}Impl
+	extends ${struct.eModel.package}.Abstract${struct.eModel.javaName}Component
+	implements ${struct.qName}
+	{
+	/** LOG declaration */
+	#LOGDECL()
+	
+	/** constructor */
+	public ${struct.javaName}Impl()
+		{
+		}
+	
+	@Override
+	public final ${struct.eModel.package}.${model.javaName}EntityType get${struct.eModel.javaName}EntityType()
+		{
+		return ${struct.eModel.package}.${model.javaName}EntityType.${struct.qName.replace(".","_")};
+		}
+	
+	
+	#foreach($f in ${c.predicates})
+	
+	/** declaration of field ${f.name} */
+	private #fieldType1(${f}) ${f.name} #if(${f.range.dataRange})#if(${f.representedAsPrimitive})/** TODO SET INIT */#{else}=null#{end}#{else}=null#end;
+	
+	/** setter for field ${f.name}*/
+	@Override
+	public void #setter(${f})(#fieldType1(${f})  ${f.name})
+		{
+		this.${f.name}=${f.name};
+		}
+	
+	/** getter for field ${f.name}*/
+	@Override
+	public #fieldType1(${f}) #getter(${f})()
+		{
+		#if(${f.needsList})if(this.${f.name}==null)
+			{
+			this.${f.name} = new java.util.ArrayList<#fieldType2(${f})>();
+			}
+		#end
+		
+		return this.${f.name};
+		}
+	#end
+	
+	
+	
+	@Override
+	public String toString()
+		{
+		StringBuilder b=new StringBuilder(getClass().getName()+"[");
+		#foreach($f in ${c.predicates})
+		#if(! ${f.needsList})
+		
+		b.append(" ${f.name}:").append(String.valueOf(this.${f.name}));
+		
+		#end
+		#end
+		
+		b.append("]");
+		return b.toString();
+		}
+	}
+${out.close()}
+
+${out.open("${model.name}/src/main/java/${struct.ePackage.qName.replace('.','/')}/ui/table/${struct.javaName}TableModel.java")}
+
+package ${struct.ePackage.qName}.ui.table;
+import ${struct.qName};
+
+
+#GENERATED()
+@SuppressWarnings("serial")
+public abstract class ${struct.javaName}TableModel
+	extends com.github.lindenb.swing.AbstractGenericTableModel<${struct.javaName}>
+	{
+	/** LOG declaration */
+	#LOGDECL()
+	
+	@Override
+	public int getColumnCount()
+		{
+		return 0;
+		}
+	}
+
+${out.close()}
+
+${out.open("${model.name}/src/main/java/${struct.ePackage.qName.replace('.','/')}/ui/tree/${struct.javaName}TreeNode.java")}
+
+package ${struct.ePackage.qName}.ui.tree;
+import ${struct.qName};
+
+
+#GENERATED()
+@SuppressWarnings("serial")
+public class ${struct.javaName}TreeNode
+	implements javax.swing.tree.TreeNode
+	{
+	private ${struct.qName} ${struct.name};
+	private java.util.List<javax.swing.tree.TreeNode> children=
+		new java.util.Vector<javax.swing.tree.TreeNode>();
+	
+	public  ${struct.javaName}TreeNode( ${struct.qName} ${struct.name})
+		{
+		this.${struct.name}=${struct.name};
+		
+		}
+	@Override
+	public  java.util.Enumeration children()
+		{
+		return java.util.Collections.enumeration(this.getChildren());
+		}
+	
+	protected java.util.List<javax.swing.tree.TreeNode> getChildren()
+		{
+		return this.children;
+		}
+	
+	public   ${struct.qName}  get${struct.javaName}()
+		{
+		return this.${struct.name};
+		}
+	
+	@Override
+	public int 	getChildCount()
+		{
+		return getChildren().size();
+		}
+	
+	@Override
+	public int getIndex(javax.swing.tree.TreeNode node)
+		{
+		return getChildren().indexOf(node);
+		}
+		
+	@Override
+	public javax.swing.tree.TreeNode getChildAt(int childIndex)
+		{
+		return getChildren().get(childIndex);
+		}
+	@Override
+	public boolean getAllowsChildren()
+		{
+		return true;
+		}
+		
+	@Override
+	public final boolean isLeaf()
+		{
+		return false;
+		}
+	
+	public final javax.swing.tree.TreeNode getParent()
+		{
+		return null;
+		}
+	
+	@Override
+	public String toString()
+		{
+		return "${struct.name}";
+		}
+	}
+
+${out.close()}
+
+
+
