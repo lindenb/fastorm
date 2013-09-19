@@ -25,7 +25,7 @@ public abstract class EClassifier extends ENamedElement
 	
 	public File getFile()
 		{
-		return new File(getEPackage().getOuputDirectory(),getName()+".java");
+		return new File(getEPackage().getOutputDirectory(),getName()+".java");
 		}
 	
 	

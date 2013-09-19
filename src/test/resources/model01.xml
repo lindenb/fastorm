@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF8"?>
+<model name="model01" main-class="test.model01.Family">
+	<package name="test.model01">
+		<class name="Family">
+		</class>
+		<class name="Person">
+		</class>
+	</package>
+</model>

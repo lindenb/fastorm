@@ -41,7 +41,7 @@ public abstract class EStructuralFeature
 			String s=att.getValue();
 			if(!s.matches("[a-zA-Z]\\w*")) throw new  EModelException("bad "+getClass()+" name "+s);
 			this.setName(s);
-			
+			super.load(root);
 			}
 		
 		}

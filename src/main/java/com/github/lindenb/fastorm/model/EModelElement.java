@@ -1,5 +1,7 @@
 package com.github.lindenb.fastorm.model;
 
-public abstract class EModelElement{
+import java.util.logging.Logger;
 
+public abstract class EModelElement{
+protected static Logger LOG=Logger.getLogger("fastorm");
 }

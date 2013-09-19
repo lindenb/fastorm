@@ -1,112 +1,21 @@
-#macro(javaName $a $b)${a.substring(0,1).toUpperCase()}${a.substring(1)}#end
-#macro(packagePath $p)${a.replace('.','/')}#end
-#macro(LOGDECL)private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger("${model.name}");#end
-#macro(getter $f)get#javaName(${f.name})#end
-#macro(setter $f)set#javaName(${f.name})#end
-#macro(fieldType3 $f)#if(${f.range.dataRange})#if(${f.representedAsPrimitive})${f.range.primitive.primitiveType}#{else}${f.range.primitive.javaClass.name}#end#{else}java.lang.Object#end#end
-#macro(fieldType2 $f)#if(${f.range.dataRange})${f.range.primitive.javaClass.name}#{else}java.lang.Object#end#end
-#macro(fieldType1 $f)#if(${f.needsList})java.util.List<#fieldType2($f)>#{else}#fieldType3($f)#end#end
-${out.open("README.md")}Hello World
+#parse("common.vm")
+${out.open("${model.name}/README.md")}
+Hello World
 ${out.close()}
 
+#parse("ant01.vm")
 
-${out.open("${model.name}/build.xml")}<?xml version="1.0" encoding="UTF-8"?>
-<project default="all" >
-<target name="all" depends="build">
-</target>
+#foreach($pack in ${model.packages})
 
-<target name="build">
-	<mkdir dir="dist"/>
-	<mkdir dir="tmp"/>
-		
-	<javac destdir="tmp" debug="true" includeantruntime="false">
-		<src path="src/main/java"/>
-		<include name="**/*.java" />
-	</javac>
-		
-	<jar destfile="dist/mjeter.jar" basedir="tmp">
-		
-		<manifest>
-			<attribute name="Built-By" value="${user.name}"/>
-			<attribute name="Main-Class" value="todo.TODO"/>
-		</manifest>
-	</jar>
-	<delete dir="tmp"/>
-</target>
-
-</project>
+${out.open("${pack.outputDirectory}/package-info.java")}
+#parse("package-info.vm")
 ${out.close()}
 
-#foreach($p in ${model.packages})
-
-
-#foreach($c in ${p.enumerations})
-#set($ClassName = "#javaName(${c.name})")
-
-
-${out.open("${model.name}/src/main/java/${c.package.path}/${ClassName}.java")}
-package ${c.package.name};
-/**
- * enumeration for ${ClassName}
- *
- */
-public enum ${ClassName}
-	{
-	#foreach($i in ${c.items})#if($velocityCount > 1),#end $i #end
-	;
-	/** find a ${ClassName} by name */
-	public static ${ClassName} findByName(String s)
-		{
-		for(${ClassName} E:values())
-			{
-			if(E.name().equals(s)) return E;
-			}
-		return null;
-		}
-	
-	}
-${out.close()}
-
-${out.open("${model.name}/src/main/java/${c.package.path}/swing/${ClassName}ListModel.java")}
-package ${c.package.name}.swing;
-import ${c.package.name}.${ClassName};
-
-/**
- * ListModel for ${ClassName}
- *
- */
-public class ${ClassName}ListModel
-	extends javax.swing.AbstractListModel
-	{
-	/** LOG declaration */
-	#LOGDECL()
-	
-	
-	public ${ClassName}ListModel()
-		{
-		}
-	
-	@Override
-	public final Object 	getElementAt(int index)
-		{
-		return this.get${ClassName}At(index);
-		}
-		
-	public 	${ClassName} get${ClassName}At(int index)
-		{
-		return ${c.name}.values()[index];
-		}
-		
-	@Override
-	public  int getSize()
-		{
-		return ${c.name}.values().length;
-		} 
-	}
-${out.close()}
+#foreach($enumeration in ${pack.enumerations})
+#parse("enum01.vm")
 #end
 
-#foreach($c in ${p.classes})
+#foreach($c in ${pack.eClasses})
 #set($ClassName = "#javaName(${c.name})")
 
 ${out.open("${model.name}/src/main/java/${c.package.path}/${ClassName}.java")}
@@ -336,4 +245,144 @@ public abstract class Abstract#javaName(${model.name})Component
 		}	
 	}
 
+${out.open("${model.name}/src/main/java/com/github/lindenb/${model.name.toLowerCase()}/${model.javaName}Component.java")}
+package 
+
+public interface ${model.javaName}Component
+	{
+	/** return the associated ${model.javaName} */
+	public ${model.javaName} get${model.javaName}();
+	}
+${out.close()}
+
+${out.open("${model.name}/src/main/java/com/github/lindenb/${model.name.toLowerCase()}/ui/tree/${model.javaName}TreeNode.java")}
+package com.github.lindenb.${model.name.toLowerCase()}.ui.tree
+
+public class ${model.javaName}TreeNode
+	implements javax.swing.tree.TreeNode
+	{
+	private ${model.javaName} model;
+	private java.util.List<javax.swing.tree.TreeNode> children=
+		new java.util.Vector<javax.swing.tree.TreeNode>();
+	
+	public  ${model.javaName}TreeNode( ${model.javaName} model)
+		{
+		this.model=model;
+		#foreach($c in ${pack.eClasses})
+		children.add(null);
+		#end
+		}
+		
+	protected List<javax.swing.tree.TreeNode> getChildren()
+		{
+		retunr this.children;
+		}
+	
+	public  ${model.javaName}  get${model.javaName}()
+		{
+		return this.model;
+		}
+	
+	@Override
+	public int 	getChildCount()
+		{
+		return getChildren().size();
+		}
+	
+	@Override
+	public int getIndex(TreeNode node)
+		{
+		return getChildren().indexOf(node);
+		}
+		
+	@Override
+	public TreeNode getChildAt(int childIndex)
+		{
+		return getChildren().elementAt(childIndex);
+		}
+			
+	@Override
+	public final boolean isLeaf()
+		{
+		return false;
+		}
+	
+	public final TreeNode getParent()
+		{
+		return null;
+		}
+	
+	@Override
+	public String toString()
+		{
+		return "${model.name}";
+		}
+	}
+${out.close()}
+
+
+${out.open("${model.name}/src/main/java/com/github/lindenb/${model.name.toLowerCase()}/ui/${model.javaName}Frame.java")}
+package com.github.lindenb.${model.name.toLowerCase()}.ui.tree
+
+public class ${model.javaName}TreeNode
+	implements javax.swing.tree.TreeNode
+	{
+	private ${model.javaName} model;
+	private java.util.List<javax.swing.tree.TreeNode> children=
+		new java.util.Vector<javax.swing.tree.TreeNode>();
+	
+	public  ${model.javaName}TreeNode( ${model.javaName} model)
+		{
+		this.model=model;
+		#foreach($c in ${pack.eClasses})
+		children.add(null);
+		#end
+		}
+		
+	protected List<javax.swing.tree.TreeNode> getChildren()
+		{
+		retunr this.children;
+		}
+	
+	public  ${model.javaName}  get${model.javaName}()
+		{
+		return this.model;
+		}
+	
+	@Override
+	public int 	getChildCount()
+		{
+		return getChildren().size();
+		}
+	
+	@Override
+	public int getIndex(TreeNode node)
+		{
+		return getChildren().indexOf(node);
+		}
+		
+	@Override
+	public TreeNode getChildAt(int childIndex)
+		{
+		return getChildren().elementAt(childIndex);
+		}
+			
+	@Override
+	public final boolean isLeaf()
+		{
+		return false;
+		}
+	
+	public final TreeNode getParent()
+		{
+		return null;
+		}
+	
+	@Override
+	public String toString()
+		{
+		return "${model.name}";
+		}
+	}
+${out.close()}
 

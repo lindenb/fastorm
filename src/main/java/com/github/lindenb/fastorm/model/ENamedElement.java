@@ -19,6 +19,12 @@ public abstract class ENamedElement
 		return name;
 		}
 	
+	public String getJavaName()
+		{
+		String s=getName();
+		return s.substring(0, 1).toUpperCase()+(s.length()<2?"":s.substring(1));
+		}
+	
 	public void setName(String name)
 		{
 		this.name = name;

@@ -1,6 +1,5 @@
 package com.github.lindenb.fastorm.model;
 
-import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 
 public class EReference extends EStructuralFeature
@@ -8,7 +7,7 @@ public class EReference extends EStructuralFeature
 	private String referenceType=null;
 	private EClass _range=null;
 	
-	public EClass getEReferenceType()
+	public EClass getEReferenceType() throws EModelException
 		{
 		if(_range==null)
 			{
@@ -20,6 +19,7 @@ public class EReference extends EStructuralFeature
 				{
 				_range= getEPackage().getEClassByName(referenceType);
 				}
+			if(_range==null) throw new EModelException("Cannot get reference type for "+referenceType );
 			}
 		return _range;
 		}
@@ -39,6 +39,15 @@ public class EReference extends EStructuralFeature
 	public boolean isEReference()
 		{
 		return true;
+		}
+	
+	@Override
+	public final EClassifier getEType() {
+		try {
+			return getEReferenceType();
+		} catch (EModelException e) {
+			throw new RuntimeException(e);
+			}
 		}
 	
 	

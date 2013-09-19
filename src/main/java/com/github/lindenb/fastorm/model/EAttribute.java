@@ -20,6 +20,11 @@ public class EAttribute
 		return iD;
 		}
 	
+	@Override
+	public final EClassifier getEType() {
+		return getEAttributeType();
+		}
+	
 	public EDataType getEAttributeType()
 		{
 		return eAttributeType;
@@ -50,18 +55,25 @@ public class EAttribute
 		Attr att=root.getAttributeNode("type");
 		if(att==null) throw new EModelException("@type missing in "+getClass());
 		String value=att.getValue();
-		if(value.contains("."))
+		if(value.contains("."))//qualified name
 			{
-			EEnum e=getEModel().getEEnumByQName(value);
+			this.eAttributeType=getEModel().getEEnumByQName(value);
+			if(this.eAttributeType==null)
+				{
+				this.eAttributeType=getEModel().getEPrimitiveByQName(value);
+				if(this.eAttributeType==null) throw new EModelException("Cannot get @type="+value);
+				}
 			}
 		else
 			{
-			EEnum e=getEPackage().getEENumByName(value);
-			if(e==null)
+			this.eAttributeType=getEPackage().getEENumByName(value);
+			if(this.eAttributeType==null)
 				{
-				getEModel().getEPackageByName(value);
+				this.eAttributeType=getEModel().getEPrimitiveByName(value);
+				if(this.eAttributeType==null) throw new EModelException("Cannot get @type="+value);
 				}
 			}
+		
 		}
 
 	}

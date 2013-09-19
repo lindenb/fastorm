@@ -30,7 +30,7 @@ public class EPackage extends ENamedElement
 
 	
 	
-	public File getOuputDirectory()
+	public File getOutputDirectory()
 		{
 		return new File(getEModel().getOutputDirectory(),
 			"src/main/java/"+getName().replace('.', '/')

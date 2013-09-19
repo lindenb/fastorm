@@ -1,0 +1,26 @@
+${out.open("${model.name}/build.xml")}<?xml version="1.0" encoding="UTF-8"?>
+<project default="all" >
+<target name="all" depends="build">
+</target>
+
+<target name="build">
+	<mkdir dir="dist"/>
+	<mkdir dir="tmp"/>
+		
+	<javac destdir="tmp" debug="true" includeantruntime="false">
+		<src path="src/main/java"/>
+		<include name="**/*.java" />
+	</javac>
+		
+	<jar destfile="dist/${model.name}.jar" basedir="tmp">
+		
+		<manifest>
+			<attribute name="Built-By" value="${user.name}"/>
+			<attribute name="Main-Class" value="todo.TODO"/>
+		</manifest>
+	</jar>
+	<delete dir="tmp"/>
+</target>
+
+</project>
+${out.close()}

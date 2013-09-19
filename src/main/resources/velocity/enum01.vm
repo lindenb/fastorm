@@ -1,0 +1,67 @@
+#set($enumName = "#javaName(${enumeration.name})")
+
+${out.open("${model.name}/src/main/java/${c.package.path}/${enumName}.java")}
+package ${enum01.vm.ePackage.name};
+/**
+ * enumeration for ${enumName}
+ *
+ */
+#GENERATED()
+public enum ${enumName}
+	{
+	#foreach($i in ${c.items})#if($velocityCount > 1),#end $i #end
+	;
+	
+	#LOGDECL()
+	
+	
+	/** find a ${enumName} by name */
+	public static ${enumName} findByName(String s)
+		{
+		for(${enumName} E:values())
+			{
+			if(E.name().equals(s)) return E;
+			}
+		return null;
+		}
+	
+	}
+${out.close()}
+
+${out.open("${model.name}/src/main/java/${c.package.path}/swing/${enumName}ListModel.java")}
+package ${c.package.name}.swing;
+import ${c.package.name}.${enumName};
+
+/**
+ * ListModel for ${enumName}
+ *
+ */
+public class ${enumName}ListModel
+	extends javax.swing.AbstractListModel
+	{
+	/** LOG declaration */
+	#LOGDECL()
+	
+	
+	public ${enumName}ListModel()
+		{
+		}
+	
+	@Override
+	public final Object 	getElementAt(int index)
+		{
+		return this.get${enumName}At(index);
+		}
+		
+	public 	${enumName} get${enumName}At(int index)
+		{
+		return ${c.name}.values()[index];
+		}
+		
+	@Override
+	public  int getSize()
+		{
+		return ${c.name}.values().length;
+		} 
+	}
+${out.close()}

@@ -12,7 +12,6 @@ public class EClass extends EClassifier
 	{
 	private List<EStructuralFeature> structuralFeatures=new ArrayList<EStructuralFeature>();
 	
-	
 	public List<EStructuralFeature> getEStructuralFeatures()
 		{
 		return structuralFeatures;
@@ -27,11 +26,37 @@ public class EClass extends EClassifier
 		return null;
 		}
 	
+	public List<EAttribute> getEAttributes()
+		{
+		 List<EAttribute> L=new ArrayList<EAttribute>();
+		for(EStructuralFeature E:getEStructuralFeatures())
+			{
+			if(E.isEAttribute()) L.add((EAttribute)E); 
+			}
+		return L;
+		}
+	
+	public List<EReference> getEReferences()
+		{
+		 List<EReference> L=new ArrayList<EReference>();
+		for(EStructuralFeature E:getEStructuralFeatures())
+			{
+			if(E.isEReference()) L.add((EReference)E); 
+			}
+		return L;
+		}
+	
+	
 	public EModel getEModel()
 		{
 		return getEPackage().getEModel();
 		}
 	
+	
+	public final boolean isMainEClass()
+		{
+		return getEModel().getMainEClass()==this;
+		}
 	
 	@Override
 	public final boolean isEClass() {
@@ -43,6 +68,15 @@ public class EClass extends EClassifier
 		return false;
 	}
 	
+	public  EAttribute 	getEIDAttribute()
+		{
+		for(EAttribute a:getEAttributes())
+			{
+			if(a.isId()) return a;
+			}
+		LOG.finest("getEIDAttribute return null for "+getQName());
+		return null;
+		}
 	
 	void load(Element root) throws EModelException
 		{

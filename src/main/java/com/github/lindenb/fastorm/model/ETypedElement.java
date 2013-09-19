@@ -1,11 +1,12 @@
 package com.github.lindenb.fastorm.model;
 
+import org.w3c.dom.Element;
+
 public abstract class ETypedElement extends ENamedElement {
 private int lowerBound=1;
 private int upperBound=-1;
 private boolean unique;
 private boolean required;
-private EClassifier eType;
 
 protected  ETypedElement()
 	{
@@ -44,14 +45,11 @@ public void setRequired(boolean required)
 	this.required = required;
 	}
 
-public EClassifier 	getEType()
-	{
-	return this.eType;
-	}
+public abstract EClassifier getEType();
 
-public void seteType(EClassifier eType)
-	{
-	this.eType = eType;
-	}
 
+void load(Element root) throws EModelException
+	{
+	
+	}	
 }
