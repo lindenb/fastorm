@@ -138,6 +138,7 @@ public abstract class EPrimitiveDataType extends EDataType
 		return false;
 		}
 	
+	@Override
 	public final String getQName()
 		{
 		return getJavaClass().getName();

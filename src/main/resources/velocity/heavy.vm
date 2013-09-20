@@ -10,6 +10,31 @@ ${out.close()}
 #parse("package01.vm")
 #end
 
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/util/Function.java")}
+#JAVA_TOP()
+package ${model.package}.util;
+
+public interface Function<FROM,TO>
+	{
+	public TO apply(FROM input);
+	}
+
+#JAVA_BOTTOM()
+${out.close()}
+
+
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/util/Predicate.java")}
+#JAVA_TOP()
+package ${model.package}.util;
+
+public interface Predicate<T>
+	{
+	public boolean accept(T input);
+	}
+
+#JAVA_BOTTOM()
+${out.close()}
+
 
 ${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/${model.javaName}EntityType.java")}
 #JAVA_TOP()
@@ -61,8 +86,11 @@ public class Default${model.javaName}
 ${out.close()}
 
 
-${out.open("${model.name}/src/main/java/com/github/lindenb/swing/AbstractGenericTableModel.java")}
-package  com.github.lindenb.swing;
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/ui/tree/AbstractGenericTableModel.java")}
+#JAVA_TOP()
+package ${model.package}.ui.tree;
+
+
 
 import java.util.List;
 import java.util.Vector;
@@ -114,7 +142,7 @@ public abstract class AbstractGenericTableModel<T>
 		return this.getRows().get(i);
 		}
 	
-	public abstract Object getValueOf(final T o, int col);
+	public abstract Object getValueOf(final T o,int col);
 	
 	@Override
 	public final Object getValueAt(int row, int col)
@@ -147,7 +175,7 @@ public abstract class AbstractGenericTableModel<T>
 		}
 	}
 
-
+#JAVA_BOTTOM()
 ${out.close()}
 
 
@@ -163,6 +191,14 @@ public interface ${model.javaName}Component
 	
 	/** returns the type of entity */
 	public ${model.package}.${model.javaName}EntityType get${model.javaName}EntityType();
+	
+	
+
+	public void addPropertyChangeListener(java.beans.PropertyChangeListener listener);
+
+
+	public void removePropertyChangeListener(java.beans.PropertyChangeListener listener);
+	
 	}
 
 #JAVA_BOTTOM()
@@ -175,11 +211,39 @@ package ${model.package};
 public abstract class Abstract${model.javaName}Component
 	implements ${model.javaName}Component
 	{
+	#LOGDECL()
+	private java.beans.PropertyChangeSupport _pcs = null;
 	private transient ${model.javaName} _owner=null;
+	
 	protected Abstract${model.javaName}Component()
 		{
 		}
 	
+	protected boolean hasPropertyChangeSupport()
+		{
+		return this._pcs!=null;
+		}
+		
+	protected java.beans.PropertyChangeSupport propertyChangeSupport()
+		{
+		if(this._pcs==null) this._pcs=new java.beans.PropertyChangeSupport(this);
+		return this._pcs;
+		}
+	
+	@Override
+	public void addPropertyChangeListener(java.beans.PropertyChangeListener listener)
+	 	{
+        this.propertyChangeSupport().addPropertyChangeListener(listener);
+     	}
+
+	@Override
+	public void removePropertyChangeListener(java.beans.PropertyChangeListener listener)
+     	{
+        this.propertyChangeSupport().removePropertyChangeListener(listener);
+     	}
+	
+	
+		
 	@Override
 	public ${model.javaName} get${model.javaName}()
 		{
@@ -192,9 +256,31 @@ public abstract class Abstract${model.javaName}Component
 		}
 	@Override
 	public abstract ${model.package}.${model.javaName}EntityType get${model.javaName}EntityType();
+	
+	
+	
 	}
 #JAVA_BOTTOM()
 ${out.close()}
+
+
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/util/AbstractList.java")}
+#JAVA_TOP()
+package ${model.package}.util;
+
+public abstract class AbstractList<T>
+	extends java.util.AbstractList<T>
+	{
+	#LOGDECL()
+	
+	public final int getSize()
+		{
+		return this.size();
+		}
+	}
+#JAVA_BOTTOM()
+${out.close()}
+
 
 
 ${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/ui/provider/LabelProvider.java")}
@@ -204,73 +290,140 @@ package ${model.package}.ui.provider;
 public interface LabelProvider<T>
 	{
 	public javax.swing.Icon getIcon(final T object,int size);
-	public String getLabel(java.lang.Object object);
+	public String getLabel(final T object);
 	}
 #JAVA_BOTTOM()
 ${out.close()}
 
 
-package com.github.lindenb.${model.name.toLowerCase()}.ui.tree
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/ui/tree/Column.java")}
+#JAVA_TOP()
+package ${model.package}.ui.tree;
 
-public class ${model.javaName}TreeNode
-	implements javax.swing.tree.TreeNode
+public interface Column<T>
 	{
-	private ${model.javaName} model;
-	private java.util.List<javax.swing.tree.TreeNode> children=
-		new java.util.Vector<javax.swing.tree.TreeNode>();
-	
-	public  ${model.javaName}TreeNode( ${model.javaName} model)
-		{
-		this.model=model;
-		#foreach($c in ${pack.eClasses})
-		children.add(null);
-		#end
-		}
-		
-	protected List<javax.swing.tree.TreeNode> getChildren()
-		{
-		retunr this.children;
-		}
-	
-	public  ${model.javaName}  get${model.javaName}()
-		{
-		return this.model;
-		}
-	
-	@Override
-	public int 	getChildCount()
-		{
-		return getChildren().size();
-		}
-	
-	@Override
-	public int getIndex(TreeNode node)
-		{
-		return getChildren().indexOf(node);
-		}
-		
-	@Override
-	public TreeNode getChildAt(int childIndex)
-		{
-		return getChildren().elementAt(childIndex);
-		}
-			
-	@Override
-	public final boolean isLeaf()
-		{
-		return false;
-		}
-	
-	public final TreeNode getParent()
-		{
-		return null;
-		}
-	
-	@Override
-	public String toString()
-		{
-		return "${model.name}";
-		}
+	public String getColumnName();
+	public Class<?> getColumnClass();
+	public Object getValue(final T object);
 	}
 
+#JAVA_BOTTOM()
+${out.close()}
+
+
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/ui/tree/AbstractGenericTableModelWithColumns.java")}
+#JAVA_TOP()
+package ${model.package}.ui.tree;
+
+
+import java.util.List;
+import java.util.Vector;
+
+@SuppressWarnings("serial")
+public abstract class AbstractGenericTableModelWithColumns<T>
+	 extends AbstractGenericTableModel<T>
+	{
+	/** LOG declaration */
+	#LOGDECL()
+	
+	private List<Column<T>> columns=new Vector<Column<T>>();
+	
+	public AbstractGenericTableModelWithColumns()
+		{
+		initColumns();
+		}
+	
+	public AbstractGenericTableModelWithColumns(List<T> rows)
+		{
+		super(rows);
+		initColumns();
+		}
+	
+	protected List<Column<T>> getColumns()
+		{
+		return this.columns;
+		}
+	
+	protected abstract void initColumns();
+		
+		
+		
+	@Override
+	public int 	getColumnCount()
+		{
+		return this.getColumns().size();
+		}
+	
+	@Override
+	public Class<?> getColumnClass(int col)
+		{
+		return this.getColumns().get(col).getColumnClass();
+		}
+	
+	@Override
+	public String getColumnName(int col)
+		{
+		return this.getColumns().get(col).getColumnName();
+		}
+	
+
+	@Override
+	public Object getValueOf(final T o,int col)
+		{
+		return this.getColumns().get(col).getValue(o);
+		}
+
+	
+	
+	}
+
+#JAVA_BOTTOM()
+${out.close()}
+
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/ui/desktop/AbstractInternalFrame.java")}
+#JAVA_TOP()
+package ${model.package}.ui.desktop;
+
+@SuppressWarnings("serial")
+public abstract class AbstractInternalFrame
+	extends javax.swing.JInternalFrame
+	{
+	#LOGDECL()
+	public AbstractInternalFrame()
+		{
+		
+		}
+	protected void createUI()
+		{
+		}
+	}
+#JAVA_BOTTOM()
+${out.close()}
+
+
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/ui/desktop/AbstractInternalListFrame.java")}
+#JAVA_TOP()
+package ${model.package}.ui.desktop;
+
+@SuppressWarnings("serial")
+public abstract class AbstractInternalListFrame<T extends ${model.package}.${model.javaName}Component>
+	extends AbstractInternalFrame
+	{
+	#LOGDECL()
+	public AbstractInternalListFrame()
+		{
+		
+		}
+	@Override
+	protected void createUI()
+		{
+		
+		}
+	/*
+	protected ${model.package}.ui.tree.AbstractGenericTableModel<T> getTableModel();
+	public abstract ${model.package}.${model.javaName}EntityType get${model.javaName}EntityType();
+	*/
+	}
+#JAVA_BOTTOM()
+${out.close()}
 

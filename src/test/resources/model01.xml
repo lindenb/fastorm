@@ -2,8 +2,11 @@
 <model name="model01" main-class="test.model01.Family">
 	<package name="test.model01">
 		<class name="Family">
+			<attribute name="name" type="string"/>
+			<reference name="person" type="Person" upper-bound="unbounded"/> 
 		</class>
 		<class name="Person">
+			<attribute name="name" type="string"/>
 		</class>
 	</package>
 </model>

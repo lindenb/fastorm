@@ -94,12 +94,14 @@ public class EClass extends EClassifier
 				EReference a=new EReference();
 				a.setEClass(this);
 				this.structuralFeatures.add(a);
+				a.load(e1);
 				}
 			else if(e1.getNodeName().equals("attribute"))
 				{
 				EAttribute a=new EAttribute();
 				a.setEClass(this);
 				this.structuralFeatures.add(a);
+				a.load(e1);
 				}
 			}
 		}

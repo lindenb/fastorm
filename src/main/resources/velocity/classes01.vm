@@ -1,23 +1,31 @@
 #set($ClassName = "#javaName(${struct.name})")
 
 ${out.open("${model.name}/src/main/java/${struct.ePackage.qName.replace('.','/')}/${struct.javaName}.java")}
+#JAVA_TOP()
 package ${struct.ePackage.qName};
 
 
 #GENERATED()
-public  interface ${ClassName}
+public  interface ${struct.javaName}
 	extends ${struct.eModel.package}.${struct.eModel.javaName}Component
 	{
-	#foreach($f in ${struct.predicates})
+	#foreach($att in ${struct.eAttributes})
 	
-	/** setter for field ${f.name}*/
-	public void #setter(${f})(#fieldType1(${f})  ${f.name});
 	
-	/** getter for field ${f.name}*/
-	public #fieldType1(${f}) #getter(${f})();
+	#if( ! ${att.needsList} )
+	/** setter for field ${att.name}*/
+	public void #setter(${att})(#fieldType1(${att}) ${att.name});
+	
 	#end
+	
+	
+	/** getter for field ${att.name}*/
+	public #fieldType1(${att}) #getter(${att})();
+	#end
+	
 	}
 
+#JAVA_BOTTOM()
 ${out.close()}
 
 ${out.open("${model.name}/src/main/java/${struct.ePackage.qName.replace('.','/')}/impl/${struct.javaName}Impl.java")}
@@ -50,29 +58,41 @@ public  class ${struct.javaName}Impl
 		}
 	
 	
-	#foreach($f in ${c.predicates})
+	#foreach($att in ${struct.eAttributes})
 	
-	/** declaration of field ${f.name} */
-	private #fieldType1(${f}) ${f.name} #if(${f.range.dataRange})#if(${f.representedAsPrimitive})/** TODO SET INIT */#{else}=null#{end}#{else}=null#end;
+	/** declaration of field ${att.name} */
+	private #fieldType1(${att}) ${att.name} #if(${att.range.dataRange})#if(${att.representedAsPrimitive})/** TODO SET INIT */#{else}=null#{end}#{else}=null#end;
 	
-	/** setter for field ${f.name}*/
+	
+	#if( ! ${att.needsList} )
+	/** setter for field ${att.name}*/
 	@Override
-	public void #setter(${f})(#fieldType1(${f})  ${f.name})
+	public void #setter(${att})(#fieldType1(${att})  ${att.name})
 		{
-		this.${f.name}=${f.name};
-		}
-	
-	/** getter for field ${f.name}*/
-	@Override
-	public #fieldType1(${f}) #getter(${f})()
-		{
-		#if(${f.needsList})if(this.${f.name}==null)
+		#fieldType1(${att}) oldValue=this.${att.name};
+		this.${att.name}=${att.name};
+		if(hasPropertyChangeSupport())
 			{
-			this.${f.name} = new java.util.ArrayList<#fieldType2(${f})>();
+			 this.propertyChangeSupport().firePropertyChange(
+			 	"${att.name}",
+			 	oldValue,
+			 	this.${att.name}
+			 	);
+			}
+		}
+	#end
+	
+	/** getter for field ${att.name}*/
+	@Override
+	public #fieldType1(${att}) #getter(${att})()
+		{
+		#if(${att.needsList})if(this.${att.name}==null)
+			{
+			this.${att.name} = new java.util.ArrayList<#fieldType2(${att})>();
 			}
 		#end
 		
-		return this.${f.name};
+		return this.${att.name};
 		}
 	#end
 	
@@ -82,10 +102,10 @@ public  class ${struct.javaName}Impl
 	public String toString()
 		{
 		StringBuilder b=new StringBuilder(getClass().getName()+"[");
-		#foreach($f in ${c.predicates})
-		#if(! ${f.needsList})
+		#foreach($att in ${struct.eAttributes})
+		#if(! ${att.needsList})
 		
-		b.append(" ${f.name}:").append(String.valueOf(this.${f.name}));
+		b.append(" ${att.name}:").append(String.valueOf(this.${att.name}));
 		
 		#end
 		#end
@@ -93,30 +113,117 @@ public  class ${struct.javaName}Impl
 		b.append("]");
 		return b.toString();
 		}
+		
+	#foreach($att in ${struct.eStructuralFeatures})
+	#if( ! ${att.needsList} )
+	
+	
+		protected class ${att.javaName}List
+		extends java.util.AbstractList<#fieldType3($att)>
+			{
+			private java.util.List<#fieldType3($att)> delegate=new java.util.ArrayList<#fieldType3($att)>();
+			
+			public ${att.javaName}List()
+				{
+				
+				}
+			
+			@Override
+			public void clear()
+				{
+				getDelegate().clear();
+				}
+			
+			@Override
+			public  boolean add(#fieldType3($att) ${att.name})
+				{
+				boolean b=false;
+				b=getDelegate().add(${att.name});
+				return b;
+				}
+			
+			@Override
+			public int size()
+				{
+				return getDelegate().size();
+				}
+			
+			protected  java.util.List<#fieldType3($att)> getDelegate()
+				{
+				return this.delegate;
+				}
+			@Override
+			public #fieldType3($att) get(int index)
+				{
+				return getDelegate().get(index);
+				}
+			}
+	
+	#end
+	#end	
+		
 	}
 ${out.close()}
 
 ${out.open("${model.name}/src/main/java/${struct.ePackage.qName.replace('.','/')}/ui/table/${struct.javaName}TableModel.java")}
-
+#JAVA_TOP()
 package ${struct.ePackage.qName}.ui.table;
 import ${struct.qName};
 
 
 #GENERATED()
 @SuppressWarnings("serial")
-public abstract class ${struct.javaName}TableModel
-	extends com.github.lindenb.swing.AbstractGenericTableModel<${struct.javaName}>
+public class ${struct.javaName}TableModel
+	extends ${struct.eModel.package}.ui.tree.AbstractGenericTableModelWithColumns<${struct.javaName}>
 	{
 	/** LOG declaration */
 	#LOGDECL()
 	
-	@Override
-	public int getColumnCount()
+	public ${struct.javaName}TableModel()
 		{
-		return 0;
+		super();
+		}
+		
+	public ${struct.javaName}TableModel(java.util.List<${struct.javaName}> rows)
+		{
+		super(rows);
+		initColumns();
+		}
+	
+	@Override
+	protected void initColumns()
+		{
+		#foreach($att in ${struct.eAttributes})
+		#if( ! ${att.needsList} )
+		
+		super.getColumns().add(
+			new ${struct.eModel.package}.ui.tree.Column<${struct.qName}>()
+				{
+				@Override
+				public String getColumnName()
+					{
+					return "${att.label}";
+					}
+				@Override
+				public Class<?> getColumnClass()
+					{
+					return  #fieldType1(${att}).class;
+					}
+				@Override
+				public Object getValue(final ${struct.qName} object)
+					{
+					return object==null?null:object.#getter(${att})();
+					}
+				}
+			);
+		
+		#end
+		#end
+		
 		}
 	}
 
+#JAVA_BOTTOM()
 ${out.close()}
 
 ${out.open("${model.name}/src/main/java/${struct.ePackage.qName.replace('.','/')}/ui/tree/${struct.javaName}TreeNode.java")}
@@ -198,5 +305,21 @@ public class ${struct.javaName}TreeNode
 
 ${out.close()}
 
+${out.open("${model.name}/src/main/java/${struct.ePackage.qName.replace('.','/')}/ui/desktop/${struct.javaName}ListFrame.java")}
+
+package ${struct.ePackage.qName}.ui.tree;
+
+
+#GENERATED()
+@SuppressWarnings("serial")
+public class ${struct.javaName}ListFrame
+	extends ${struct.eModel.package}.ui.desktop.AbstractInternalFrame
+	{
+	public ${struct.javaName}ListFrame()
+		{
+		this.setTitle("");
+		}
+	}
+${out.close()}
 
 

@@ -27,6 +27,8 @@ public abstract class ENamedElement
 	public String getJavaName()
 		{
 		String s=getName();
+		if(s.isEmpty()) LOG.warning("NAME is empty in "+getClass());
+		if(s.isEmpty()) return "";
 		return s.substring(0, 1).toUpperCase()+(s.length()<2?"":s.substring(1));
 		}
 	
@@ -41,7 +43,7 @@ public abstract class ENamedElement
 		}
 
 	public String getLabel() {
-		return label;
+		return label==null?getName():this.label;
 	}
 
 	/** get a label for this object */

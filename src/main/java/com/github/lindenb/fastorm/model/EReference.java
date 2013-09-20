@@ -1,5 +1,6 @@
 package com.github.lindenb.fastorm.model;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 
 public class EReference extends EStructuralFeature
@@ -56,7 +57,11 @@ public class EReference extends EStructuralFeature
 		{
 		super.load(root);
 		
-		if(referenceType==null) throw new EModelException("missing reference type");
+		Attr att=root.getAttributeNode("type");
+		if(att==null) throw new EModelException("@type missing in "+getClass());
+		this.referenceType=att.getValue();
+		
+		
 		}
 	
 }
