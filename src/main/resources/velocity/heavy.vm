@@ -199,6 +199,8 @@ public interface ${model.javaName}Component
 
 	public void removePropertyChangeListener(java.beans.PropertyChangeListener listener);
 	
+	
+	public boolean isProxy();
 	}
 
 #JAVA_BOTTOM()
@@ -263,6 +265,20 @@ public abstract class Abstract${model.javaName}Component
 #JAVA_BOTTOM()
 ${out.close()}
 
+
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/Wrapper.java")}
+#JAVA_TOP()
+package ${model.package};
+
+#GENERATED()
+public interface Wrapper<T>
+	{
+	/** returns the wrapped object */
+	public T getDelegate();
+	}
+
+#JAVA_BOTTOM()
+${out.close()}
 
 ${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/util/AbstractList.java")}
 #JAVA_TOP()

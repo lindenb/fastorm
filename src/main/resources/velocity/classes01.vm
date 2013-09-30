@@ -96,6 +96,11 @@ public  class ${struct.javaName}Impl
 		}
 	#end
 	
+	@Override
+	public final boolean isProxy()
+		{
+		return false;
+		}
 	
 	
 	@Override
@@ -164,6 +169,86 @@ public  class ${struct.javaName}Impl
 		
 	}
 ${out.close()}
+
+
+
+${out.open("${model.name}/src/main/java/${struct.ePackage.qName.replace('.','/')}/impl/${struct.javaName}Wrapper.java")}
+
+package ${struct.ePackage.qName}.impl;
+import ${struct.qName};
+
+
+/**
+ * Proxy class of ${struct.javaName}
+ *
+ */
+#GENERATED()
+public  class ${struct.javaName}Wrapper
+	extends ${struct.eModel.package}.Abstract${struct.eModel.javaName}Component
+	implements ${struct.qName} , ${model.package}.Wrapper<${struct.javaName}>
+	{
+	/** LOG declaration */
+	#LOGDECL()
+	
+	private ${struct.qName} _delegate=null;
+	
+	/** constructor */
+	public ${struct.javaName}Wrapper()
+		{
+		}
+	
+	@Override
+	public ${struct.qName} getDelegate()
+		{
+		if(this._delegate==null)
+			{
+			
+			}
+		return this._delegate;
+		}
+	
+	@Override
+	public  ${struct.eModel.package}.${model.javaName}EntityType get${struct.eModel.javaName}EntityType()
+		{
+		return ${struct.eModel.package}.${model.javaName}EntityType.${struct.qName.replace(".","_")};
+		}
+	
+	
+	#foreach($att in ${struct.eAttributes})
+	
+	
+	
+	#if( ! ${att.needsList} )
+	/** setter for field ${att.name}*/
+	@Override
+	public void #setter(${att})(#fieldType1(${att})  ${att.name})
+		{
+		delegate().#setter(${att})( ${att.name});
+		}
+	#end
+	
+	/** getter for field ${att.name}*/
+	@Override
+	public #fieldType1(${att}) #getter(${att})()
+		{
+		return delegate().#getter(${att})();
+		}
+	#end
+	
+	@Override
+	public final boolean isProxy()
+		{
+		return true;
+		}
+	
+	@Override
+	public String toString()
+		{
+		return delegate()==null?"null":delegate().toString();
+		}
+	}
+${out.close()}
+
 
 ${out.open("${model.name}/src/main/java/${struct.ePackage.qName.replace('.','/')}/ui/table/${struct.javaName}TableModel.java")}
 #JAVA_TOP()
