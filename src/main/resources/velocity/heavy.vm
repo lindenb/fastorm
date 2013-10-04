@@ -58,7 +58,7 @@ package ${model.package};
 #GENERATED()
 public interface ${model.javaName}
 	{
-	
+	public java.math.BigInteger getNextId();
 	}
 
 #JAVA_BOTTOM()
@@ -75,6 +75,14 @@ public class Default${model.javaName}
 	public Default${model.javaName}()
 		{
 		}
+	
+	@Override
+	public java.math.BigInteger getNextId()
+		{
+		return null;
+		}	
+	
+		
 	@Override
 	public String toString()	
 		{
@@ -199,8 +207,11 @@ public interface ${model.javaName}Component
 
 	public void removePropertyChangeListener(java.beans.PropertyChangeListener listener);
 	
-	
+	/** returns wether this object is a proxy or a concrete class */
 	public boolean isProxy();
+	
+	/** get this object id */
+	public java.math.BigInteger getId();
 	}
 
 #JAVA_BOTTOM()
@@ -216,6 +227,8 @@ public abstract class Abstract${model.javaName}Component
 	#LOGDECL()
 	private java.beans.PropertyChangeSupport _pcs = null;
 	private transient ${model.javaName} _owner=null;
+	private java.math.BigInteger _id=null;
+	
 	
 	protected Abstract${model.javaName}Component()
 		{
@@ -260,6 +273,20 @@ public abstract class Abstract${model.javaName}Component
 	public abstract ${model.package}.${model.javaName}EntityType get${model.javaName}EntityType();
 	
 	
+		/** get this object id */
+	public java.math.BigInteger getId()
+		{
+		return this._id;
+		}
+		
+	public void setId(java.math.BigInteger id)
+		{
+		if(this._id!=null && !this._id.equals(id))
+			{
+			throw new IllegalStateException("id already defined");
+			}
+		this._id=id;
+		}
 	
 	}
 #JAVA_BOTTOM()
@@ -443,3 +470,149 @@ public abstract class AbstractInternalListFrame<T extends ${model.package}.${mod
 #JAVA_BOTTOM()
 ${out.close()}
 
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/ui/primitives/AbstractPrimitiveTextField.java")}
+#JAVA_TOP()
+package ${model.package}.ui.primitives;
+
+@SuppressWarnings("serial")
+public abstract class AbstractPrimitiveTextField
+	extends javax.swing.JPanel
+	{
+	#LOGDECL()
+	
+	protected  AbstractPrimitiveTextField()
+		{
+		super(new java.awt.BorderLayout());
+		}
+	
+	protected abstract javax.swing.text.JTextComponent getTextComponent();
+	}
+
+#JAVA_BOTTOM()
+${out.close()}
+
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/ui/primitives/AbstractMultiValuesEditor.java")}
+#JAVA_TOP()
+package ${model.package}.ui.primitives;
+
+@SuppressWarnings("serial")
+public abstract class AbstractMultiValuesEditor
+	extends javax.swing.JPanel
+	{
+	#LOGDECL()
+	
+	protected javax.swing.List jlist=null;
+	
+	protected  AbstractMultiValuesEditor()
+		{
+		super(new java.awt.BorderLayout());
+		
+		this.jlist=new javax.swing.List.JList();
+		javax.swing.JScrollPane scroll=new new javax.swing.List.JScrollPane(this.jlist);
+		this.add(scroll,java.awt.BorderLayout.CENTER);
+		
+		}
+	
+	
+	}
+
+#JAVA_BOTTOM()
+${out.close()}
+
+
+#foreach($primitive in ${model.allEPrimitives} )
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/ui/primitives/${primitive.javaClass.simpleName}TextField.java")}
+
+#JAVA_TOP()
+package ${model.package}.ui.primitives;
+
+@SuppressWarnings("serial")
+public class ${primitive.javaClass.simpleName}TextField
+	extends AbstractPrimitiveTextField
+	{
+	#LOGDECL()
+	
+	#if( ${primitive.javaClass.simpleName} == "String")
+	
+	private javax.swing.text.JTextComponent  tfField;
+	
+	public  ${primitive.javaClass.simpleName}TextField()
+		{
+		this(false);
+		}
+	
+	#else
+	
+	private javax.swing.JTextField tfField;
+	
+	
+	#end
+	
+	
+	public  ${primitive.javaClass.simpleName}TextField(#if( ${primitive.javaClass.simpleName} == "String") boolean multiline #end )
+		{
+		#if( ${primitive.javaClass.simpleName} == "String")
+		
+		if(multiline)
+			{
+			tfField= new  javax.swing.JTextArea();
+			javax.swing.JScrollPane scroll=new javax.swing.JScrollPane(tfField);
+			super.add(scroll,java.awt.BorderLayout.CENTER);
+			}
+		else
+		 	{
+		#end
+			this.tfField= new  javax.swing.JTextField();
+			super.add(this.tfField,java.awt.BorderLayout.CENTER);
+		#if( ${primitive.javaClass.simpleName} == "String")
+			}
+		#end
+		}
+		
+	@Override
+	protected javax.swing.text.JTextComponent getTextComponent()
+		{
+		return this.tfField;
+		}	
+	
+	public  ${primitive.javaClass.name} get${primitive.javaClass.simpleName}Value()
+		{
+		String lit=getTextComponent().getText();
+		#if( ${primitive.javaClass.simpleName} == "String")
+		
+		return lit;
+		
+		#else
+		
+		return null;
+		
+		#end
+		
+		} 
+	
+	}
+
+#JAVA_BOTTOM()
+${out.close()}
+
+
+${out.open("${model.name}/src/main/java/${model.package.replace('.','/')}/ui/primitives/${primitive.javaClass.simpleName}MultiValuesEditor.java")}
+
+#JAVA_TOP()
+package ${model.package}.ui.primitives;
+
+@SuppressWarnings("serial")
+public class ${primitive.javaClass.simpleName}MultiValuesEditor
+	extends ${model.package}.ui.primitives.AbstractMultiValuesEditor
+	{	
+	public  ${primitive.javaClass.simpleName}MultiValuesEditor()
+		{
+		this(false);
+		}
+	}
+
+#JAVA_BOTTOM()
+${out.close()}
+
+
+#end

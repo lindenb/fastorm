@@ -223,7 +223,7 @@ public  class ${struct.javaName}Wrapper
 	@Override
 	public void #setter(${att})(#fieldType1(${att})  ${att.name})
 		{
-		delegate().#setter(${att})( ${att.name});
+		getDelegate().#setter(${att})( ${att.name});
 		}
 	#end
 	
@@ -231,7 +231,7 @@ public  class ${struct.javaName}Wrapper
 	@Override
 	public #fieldType1(${att}) #getter(${att})()
 		{
-		return delegate().#getter(${att})();
+		return getDelegate().#getter(${att})();
 		}
 	#end
 	
@@ -244,7 +244,7 @@ public  class ${struct.javaName}Wrapper
 	@Override
 	public String toString()
 		{
-		return delegate()==null?"null":delegate().toString();
+		return getDelegate()==null?"null":getDelegate().toString();
 		}
 	}
 ${out.close()}
@@ -407,4 +407,84 @@ public class ${struct.javaName}ListFrame
 	}
 ${out.close()}
 
+${out.open("${model.name}/src/main/java/${struct.ePackage.qName.replace('.','/')}/ui/desktop/${struct.javaName}EditorPane.java")}
+
+package ${struct.ePackage.qName}.ui.desktop;
+
+
+#GENERATED()
+@SuppressWarnings("serial")
+public class ${struct.javaName}EditorPane
+	extends javax.swing.JPanel
+	{
+	#foreach($att in ${struct.eAttributes})
+	#if(${att.needsList})
+	private javax.swing.JList list_${att.name} = null;
+	#else
+	private javax.swing.JTextField tf_${att.name} = null;
+	#end
+	
+	public ${struct.javaName}EditorPane()
+		{
+		super(new java.awt.BorderLayout());
+		javax.swing.JPanel contentPane=new javax.swing.JPanel(new java.awt.GridBagLayout());
+		this.add(contentPane,java.awt.BorderLayout.CENTER);
+		int gridy=0;
+		#foreach($att in ${struct.eAttributes})
+		
+		{
+		java.awt.GridBagConstraints c = new java.awt.GridBagConstraints();
+		c.gridy=gridy;
+		c.gridx=0;
+		c.gridheight=1;
+		c.gridwidth=1;
+		javax.swing.JLabel label=new javax.swing.JLabel("${att.label}");
+		contentPane.add(label,c);
+		
+		c.gridx=1;
+		c.gridwidth=5;
+		
+		#if(! ${att.needsList})
+		
+		this.tf_${att.name} =new javax.swing.JTextField("");
+		contentPane.add(this.tf_${att.name} ,c);
+		label.setLabelFor(this.tf_${att.name});
+		
+		gridy++;
+		
+		#else
+		
+		javax.swing.JPanel pane1=new javax.swing.JPanel(new java.awt.BorderLayout());
+		this.list_${att.name} =new javax.swing.JList();
+		javax.swing.JScrollPane scroll=new javax.swing.JScrollPane(this.list_${att.name});
+		pane1.add(scroll,java.awt.BorderLayout.CENTER);
+		javax.swing.JPanel pane2=new javax.swing.JPanel(new java.awt.FlowLayout());
+		pane1.add(pane2,java.awt.BorderLayout.NORTH);
+		pane1.add(pane2,java.awt.BorderLayout.NORTH);
+		
+		c.gridheight=6;
+		pane.add(pane1,c);
+		label.setLabelFor(this.list_${att.name});
+		
+		gridy+=6;
+		#end
+		
+		
+		
+		}
+		#end
+		
+		}
+	
+	public void set${struct.javaName}(${struct.qName} ${struct.name})
+		{
+		}
+	
+	public ${struct.qName} get${struct.javaName}()
+		{
+		return null;
+		}
+	
+	}
+${out.close()}
 
